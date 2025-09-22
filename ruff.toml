@@ -1,0 +1,10 @@
+line-length = 79
+indent-width = 4
+
+exclude = [".venv"]
+
+[lint]
+select = ["I", "F", "E", "W", "PL", "PT"]
+
+[format]
+quote-style = "double"
