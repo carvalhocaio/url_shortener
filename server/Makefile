@@ -11,4 +11,4 @@ run:
 	fastapi dev main.py
 
 build:
-	fastapi run main.py
+	uv run fastapi run main.py
