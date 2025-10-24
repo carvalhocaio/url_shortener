@@ -9,8 +9,7 @@ class URL(URLBase):
     is_active: bool
     clicks: int
 
-    class Config:
-        orm_mode = True
+    model_config = {"from_attributes": True}
 
 
 class URLInfo(URL):

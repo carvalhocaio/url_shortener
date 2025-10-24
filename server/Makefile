@@ -4,5 +4,11 @@ lint:
 format:
 	ruff check . --fix && ruff format .
 
+dev:
+	fastapi dev main.py
+
 run:
-	uvicorn shortener_app.main:app --reload
+	fastapi dev main.py
+
+build:
+	fastapi run main.py
