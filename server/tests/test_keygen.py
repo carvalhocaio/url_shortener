@@ -124,3 +124,96 @@ def test_create_random_key_large_length():
 	key = keygen.create_random_key(length=length)
 
 	assert len(key) == length
+
+
+def test_is_key_available_with_available_key(db_session):
+	"""Test is_key_available returns True for available key"""
+	from server import crud
+	from server.schemas import URLBase
+
+	# Create a URL
+	crud.create_db_url(
+		db_session, URLBase(target_url="https://example.com/test")
+	)
+
+	# Check that a different key is available
+	assert keygen.is_key_available(db_session, "available-key") is True
+
+
+def test_is_key_available_with_taken_key(db_session):
+	"""Test is_key_available returns False for taken key"""
+	from server import crud
+	from server.schemas import URLBase
+
+	# Create a URL with custom key
+	crud.create_db_url(
+		db_session,
+		URLBase(target_url="https://example.com/test", custom_key="taken-key"),
+	)
+
+	# Check that the same key is not available
+	assert keygen.is_key_available(db_session, "taken-key") is False
+
+
+def test_is_key_available_after_soft_deletion(db_session):
+	"""Test is_key_available returns False after URL is soft deleted"""
+	from server import crud
+	from server.schemas import URLBase
+
+	# Create a URL with custom key
+	created_url = crud.create_db_url(
+		db_session,
+		URLBase(
+			target_url="https://example.com/test", custom_key="deleted-key"
+		),
+	)
+	secret_key = created_url.secret_key
+
+	# Delete the URL (soft delete - sets is_active=False)
+	crud.deactivate_db_url_by_secret_key(db_session, secret_key)
+
+	# Key should still be unavailable (soft delete keeps record in DB)
+	assert keygen.is_key_available(db_session, "deleted-key") is False
+
+
+def test_key_exists_in_db_with_active_url(db_session):
+	"""Test key_exists_in_db returns True for active URL key"""
+	from server import crud
+	from server.schemas import URLBase
+
+	# Create a URL with custom key
+	crud.create_db_url(
+		db_session,
+		URLBase(
+			target_url="https://example.com/test", custom_key="active-key"
+		),
+	)
+
+	# Check that the key exists
+	assert crud.key_exists_in_db(db_session, "active-key") is True
+
+
+def test_key_exists_in_db_with_inactive_url(db_session):
+	"""Test key_exists_in_db returns True for inactive URL key"""
+	from server import crud
+	from server.schemas import URLBase
+
+	# Create and then delete a URL
+	created_url = crud.create_db_url(
+		db_session,
+		URLBase(
+			target_url="https://example.com/test", custom_key="inactive-key"
+		),
+	)
+	crud.deactivate_db_url_by_secret_key(db_session, created_url.secret_key)
+
+	# Key should still exist in database (soft delete)
+	assert crud.key_exists_in_db(db_session, "inactive-key") is True
+
+
+def test_key_exists_in_db_with_nonexistent_key(db_session):
+	"""Test key_exists_in_db returns False for non-existent key"""
+	from server import crud
+
+	# Check that a random key doesn't exist
+	assert crud.key_exists_in_db(db_session, "nonexistent-key") is False

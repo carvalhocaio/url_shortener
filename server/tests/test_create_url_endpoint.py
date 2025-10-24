@@ -11,7 +11,7 @@ def test_create_url_returns_all_required_fields(client):
 
 	response = client.post("/url", json={"target_url": target_url})
 
-	assert response.status_code == status.HTTP_200_OK
+	assert response.status_code == status.HTTP_201_CREATED
 
 	data = response.json()
 
@@ -36,7 +36,7 @@ def test_create_url_admin_url_is_accessible(client):
 
 	# Create URL
 	create_response = client.post("/url", json={"target_url": target_url})
-	assert create_response.status_code == status.HTTP_200_OK
+	assert create_response.status_code == status.HTTP_201_CREATED
 
 	data = create_response.json()
 	admin_url = data["admin_url"]
@@ -65,8 +65,8 @@ def test_create_url_generates_unique_keys(client):
 	response1 = client.post("/url", json={"target_url": target_url_1})
 	response2 = client.post("/url", json={"target_url": target_url_2})
 
-	assert response1.status_code == status.HTTP_200_OK
-	assert response2.status_code == status.HTTP_200_OK
+	assert response1.status_code == status.HTTP_201_CREATED
+	assert response2.status_code == status.HTTP_201_CREATED
 
 	data1 = response1.json()
 	data2 = response2.json()
@@ -88,7 +88,7 @@ def test_create_url_with_https(client):
 
 	response = client.post("/url", json={"target_url": target_url})
 
-	assert response.status_code == status.HTTP_200_OK
+	assert response.status_code == status.HTTP_201_CREATED
 	assert response.json()["target_url"] == target_url
 
 
@@ -98,7 +98,7 @@ def test_create_url_with_http(client):
 
 	response = client.post("/url", json={"target_url": target_url})
 
-	assert response.status_code == status.HTTP_200_OK
+	assert response.status_code == status.HTTP_201_CREATED
 	assert response.json()["target_url"] == target_url
 
 
@@ -108,5 +108,5 @@ def test_create_url_with_query_params(client):
 
 	response = client.post("/url", json={"target_url": target_url})
 
-	assert response.status_code == status.HTTP_200_OK
+	assert response.status_code == status.HTTP_201_CREATED
 	assert response.json()["target_url"] == target_url

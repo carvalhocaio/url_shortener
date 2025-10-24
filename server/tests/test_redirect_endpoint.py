@@ -11,7 +11,7 @@ def test_redirect_to_target_url(client):
 
 	# Create shortened URL
 	create_response = client.post("/url", json={"target_url": target_url})
-	assert create_response.status_code == status.HTTP_200_OK
+	assert create_response.status_code == status.HTTP_201_CREATED
 
 	data = create_response.json()
 	url_key = data["url"].split("/")[-1]

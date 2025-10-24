@@ -12,19 +12,21 @@ This test covers the complete flow:
 8. Verify deleted URL returns 404
 """
 
+from fastapi import status
+
 
 def test_url_shortener_complete_flow(client):
 	"""Test the complete E2E flow of URL shortener"""
 
 	# 1. Test root endpoint
 	response = client.get("/")
-	assert response.status_code == 200
+	assert response.status_code == status.HTTP_200_OK
 	assert "Welcome" in response.text
 
 	# 2. Create a new shortened URL
 	target_url = "https://www.example.com/very/long/url/path"
 	create_response = client.post("/url", json={"target_url": target_url})
-	assert create_response.status_code == 200
+	assert create_response.status_code == status.HTTP_201_CREATED
 
 	data = create_response.json()
 	assert data["target_url"] == target_url
@@ -41,12 +43,12 @@ def test_url_shortener_complete_flow(client):
 
 	# 3. Access the shortened URL (should redirect)
 	redirect_response = client.get(f"/{url_key}", follow_redirects=False)
-	assert redirect_response.status_code == 307  # Temporary redirect
+	assert redirect_response.status_code == status.HTTP_307_TEMPORARY_REDIRECT
 	assert redirect_response.headers["location"] == target_url
 
 	# 4. Check admin endpoint - should show 1 click
 	admin_response = client.get(f"/admin/{secret_key}")
-	assert admin_response.status_code == 200
+	assert admin_response.status_code == status.HTTP_200_OK
 
 	admin_data = admin_response.json()
 	assert admin_data["target_url"] == target_url
@@ -55,47 +57,49 @@ def test_url_shortener_complete_flow(client):
 
 	# 5. Access shortened URL again to increment clicks
 	redirect_response_2 = client.get(f"/{url_key}", follow_redirects=False)
-	assert redirect_response_2.status_code == 307
+	assert (
+		redirect_response_2.status_code == status.HTTP_307_TEMPORARY_REDIRECT
+	)
 	assert redirect_response_2.headers["location"] == target_url
 
 	# 6. Verify click count increased to 2
 	admin_response_2 = client.get(f"/admin/{secret_key}")
-	assert admin_response_2.status_code == 200
+	assert admin_response_2.status_code == status.HTTP_200_OK
 
 	admin_data_2 = admin_response_2.json()
 	assert admin_data_2["clicks"] == 2
 
 	# 7. Delete the shortened URL
 	delete_response = client.delete(f"/admin/{secret_key}")
-	assert delete_response.status_code == 200
+	assert delete_response.status_code == status.HTTP_200_OK
 	assert "Successfully deleted" in delete_response.json()["detail"]
 
 	# 8. Verify deleted URL returns 404
 	not_found_response = client.get(f"/{url_key}")
-	assert not_found_response.status_code == 404
+	assert not_found_response.status_code == status.HTTP_404_NOT_FOUND
 	assert "doesn't exist" in not_found_response.json()["detail"]
 
 	# Also verify admin endpoint returns 404 for deleted URL
 	admin_not_found = client.get(f"/admin/{secret_key}")
-	assert admin_not_found.status_code == 404
+	assert admin_not_found.status_code == status.HTTP_404_NOT_FOUND
 
 
 def test_invalid_url_returns_400(client):
 	"""Test that creating a shortened URL with invalid URL returns 400"""
 	response = client.post("/url", json={"target_url": "not-a-valid-url"})
-	assert response.status_code == 400
+	assert response.status_code == status.HTTP_400_BAD_REQUEST
 	assert "not valid" in response.json()["detail"]
 
 
 def test_nonexistent_url_key_returns_404(client):
 	"""Test that accessing a non-existent URL key returns 404"""
 	response = client.get("/nonexistent123")
-	assert response.status_code == 404
+	assert response.status_code == status.HTTP_404_NOT_FOUND
 	assert "doesn't exist" in response.json()["detail"]
 
 
 def test_nonexistent_secret_key_returns_404(client):
 	"""Test that accessing admin with non-existent secret key returns 404"""
 	response = client.get("/admin/nonexistent_secret_key_123")
-	assert response.status_code == 404
+	assert response.status_code == status.HTTP_404_NOT_FOUND
 	assert "doesn't exist" in response.json()["detail"]

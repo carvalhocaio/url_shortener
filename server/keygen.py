@@ -16,3 +16,20 @@ def create_unique_random_key(db: Session) -> str:
 	while crud.get_db_url_by_key(db, key):
 		key = create_random_key()
 	return key
+
+
+def is_key_available(db: Session, key: str) -> bool:
+	"""
+	Check if a custom key is available (not already in use).
+
+	This checks if the key exists in the database regardless of is_active
+	status, since the key column has a UNIQUE constraint.
+
+	Args:
+		db: Database session
+		key: Custom key to check
+
+	Returns:
+		True if available, False if already taken
+	"""
+	return not crud.key_exists_in_db(db, key)

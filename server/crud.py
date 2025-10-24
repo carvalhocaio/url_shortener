@@ -4,7 +4,18 @@ from . import keygen, models, schemas
 
 
 def create_db_url(db: Session, url: schemas.URLBase) -> models.URL:
-	key = keygen.create_unique_random_key(db)
+	# Use custom key if provided, otherwise generate random key
+	if url.custom_key:
+		# Custom key is already validated by Pydantic schema
+		# Just need to check if it's available
+		if not keygen.is_key_available(db, url.custom_key):
+			# This will be handled by the endpoint with HTTPException
+			# Return None to signal key is taken
+			return None
+		key = url.custom_key
+	else:
+		key = keygen.create_unique_random_key(db)
+
 	secret_key = f"{key}_{keygen.create_random_key(length=8)}"
 	db_url = models.URL(
 		target_url=url.target_url,
@@ -24,6 +35,22 @@ def get_db_url_by_key(db: Session, url_key: str) -> models.URL:
 		db.query(models.URL)
 		.filter(models.URL.key == url_key, models.URL.is_active)
 		.first()
+	)
+
+
+def key_exists_in_db(db: Session, key: str) -> bool:
+	"""
+	Check if a key exists in the database (regardless of is_active status).
+
+	Args:
+		db: Database session
+		key: URL key to check
+
+	Returns:
+		True if key exists, False otherwise
+	"""
+	return (
+		db.query(models.URL).filter(models.URL.key == key).first() is not None
 	)
 
 
