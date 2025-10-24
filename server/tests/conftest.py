@@ -11,7 +11,7 @@ from sqlalchemy.orm import sessionmaker
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 # Import after path is set
-import server.models as models
+from server import models
 from server.main import app, get_db
 
 Base = models.Base
