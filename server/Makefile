@@ -37,3 +37,16 @@ test-with-db:
 	@make docker-up-test-db
 	@make test || (make docker-down-test-db && exit 1)
 	@make docker-down-test-db
+
+# Pre-commit commands
+pre-commit-install:
+	uv run pre-commit install
+
+pre-commit-uninstall:
+	uv run pre-commit uninstall
+
+pre-commit-run:
+	uv run pre-commit run --all-files
+
+pre-commit-update:
+	uv run pre-commit autoupdate
