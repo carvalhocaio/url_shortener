@@ -1,7 +1,7 @@
 """
 Unit tests for POST /url endpoint
 """
-
+from fastapi import status
 
 def test_create_url_returns_all_required_fields(client):
     """Test that POST /url returns all required fields"""
@@ -9,7 +9,7 @@ def test_create_url_returns_all_required_fields(client):
 
     response = client.post("/url", json={"target_url": target_url})
 
-    assert response.status_code == 200
+    assert response.status_code == status.HTTP_200_OK
 
     data = response.json()
 
@@ -34,7 +34,7 @@ def test_create_url_admin_url_is_accessible(client):
 
     # Create URL
     create_response = client.post("/url", json={"target_url": target_url})
-    assert create_response.status_code == 200
+    assert create_response.status_code == status.HTTP_200_OK
 
     data = create_response.json()
     admin_url = data["admin_url"]
@@ -44,14 +44,14 @@ def test_create_url_admin_url_is_accessible(client):
 
     # Validate admin endpoint returns 200
     admin_response = client.get(f"/admin/{secret_key}")
-    assert admin_response.status_code == 200
+    assert admin_response.status_code == status.HTTP_200_OK
 
 
 def test_create_url_with_invalid_url_returns_400(client):
     """Test that creating URL with invalid URL returns 400"""
     response = client.post("/url", json={"target_url": "not-a-valid-url"})
 
-    assert response.status_code == 400
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
     assert "not valid" in response.json()["detail"]
 
 
@@ -63,8 +63,8 @@ def test_create_url_generates_unique_keys(client):
     response1 = client.post("/url", json={"target_url": target_url_1})
     response2 = client.post("/url", json={"target_url": target_url_2})
 
-    assert response1.status_code == 200
-    assert response2.status_code == 200
+    assert response1.status_code == status.HTTP_200_OK
+    assert response2.status_code == status.HTTP_200_OK
 
     data1 = response1.json()
     data2 = response2.json()
@@ -86,7 +86,7 @@ def test_create_url_with_https(client):
 
     response = client.post("/url", json={"target_url": target_url})
 
-    assert response.status_code == 200
+    assert response.status_code == status.HTTP_200_OK
     assert response.json()["target_url"] == target_url
 
 
@@ -96,7 +96,7 @@ def test_create_url_with_http(client):
 
     response = client.post("/url", json={"target_url": target_url})
 
-    assert response.status_code == 200
+    assert response.status_code == status.HTTP_200_OK
     assert response.json()["target_url"] == target_url
 
 
@@ -106,5 +106,5 @@ def test_create_url_with_query_params(client):
 
     response = client.post("/url", json={"target_url": target_url})
 
-    assert response.status_code == 200
+    assert response.status_code == status.HTTP_200_OK
     assert response.json()["target_url"] == target_url

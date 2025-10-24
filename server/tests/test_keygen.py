@@ -2,9 +2,7 @@
 Unit tests for keygen.py module
 """
 import string
-from unittest.mock import MagicMock, patch
-
-import pytest
+from unittest.mock import patch
 
 from server import keygen
 

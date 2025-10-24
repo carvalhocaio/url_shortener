@@ -2,10 +2,7 @@
 Unit tests for database.py module
 """
 import os
-from unittest.mock import patch
 
-import pytest
-from sqlalchemy import create_engine
 
 
 def test_sqlite_database_uses_check_same_thread():
@@ -122,13 +119,3 @@ def test_connect_args_logic_for_non_sqlite():
     # Should remain empty for PostgreSQL
     assert connect_args == {}
 
-    # Test with other database types
-    for db_url in [
-        "mysql://user:pass@localhost:3306/testdb",
-        "oracle://user:pass@localhost:1521/testdb",
-        "mssql://user:pass@localhost:1433/testdb"
-    ]:
-        connect_args = {}
-        if db_url.startswith("sqlite"):
-            connect_args = {"check_same_thread": False}
-        assert connect_args == {}

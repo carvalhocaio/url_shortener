@@ -1,7 +1,7 @@
 """
 Unit tests for GET /admin/{secret_key} endpoint
 """
-
+from fastapi import status
 
 def test_admin_info_returns_all_required_fields(client):
     """Test that GET /admin/{secret_key} returns all required fields"""
@@ -15,7 +15,7 @@ def test_admin_info_returns_all_required_fields(client):
     # Get admin info
     response = client.get(f"/admin/{secret_key}")
 
-    assert response.status_code == 200
+    assert response.status_code == status.HTTP_200_OK
 
     admin_data = response.json()
 
@@ -51,7 +51,7 @@ def test_admin_info_shows_correct_click_count(client):
     # Check admin info
     response = client.get(f"/admin/{secret_key}")
 
-    assert response.status_code == 200
+    assert response.status_code == status.HTTP_200_OK
     assert response.json()["clicks"] == 3
 
 
@@ -59,7 +59,7 @@ def test_admin_info_with_nonexistent_secret_key_returns_404(client):
     """Test that accessing admin with non-existent secret key returns 404"""
     response = client.get("/admin/nonexistent_secret_key_xyz123")
 
-    assert response.status_code == 404
+    assert response.status_code == status.HTTP_404_NOT_FOUND
     assert "doesn't exist" in response.json()["detail"]
 
 
@@ -75,7 +75,7 @@ def test_admin_info_shows_is_active_true(client):
     # Get admin info
     response = client.get(f"/admin/{secret_key}")
 
-    assert response.status_code == 200
+    assert response.status_code == status.HTTP_200_OK
     assert response.json()["is_active"] is True
 
 
@@ -90,11 +90,11 @@ def test_admin_info_after_deletion_returns_404(client):
 
     # Delete URL
     delete_response = client.delete(f"/admin/{secret_key}")
-    assert delete_response.status_code == 200
+    assert delete_response.status_code == status.HTTP_200_OK
 
     # Try to get admin info
     response = client.get(f"/admin/{secret_key}")
-    assert response.status_code == 404
+    assert response.status_code == status.HTTP_404_NOT_FOUND
 
 
 def test_admin_info_url_field_is_valid(client):
@@ -115,7 +115,7 @@ def test_admin_info_url_field_is_valid(client):
 
     # Verify the URL works
     redirect_response = client.get(f"/{url_key}", follow_redirects=False)
-    assert redirect_response.status_code == 307
+    assert redirect_response.status_code == status.HTTP_307_TEMPORARY_REDIRECT
 
 
 def test_admin_info_admin_url_field_is_valid(client):

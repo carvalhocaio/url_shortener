@@ -2,11 +2,10 @@
 Unit tests for helper functions in main.py
 """
 import pytest
-from fastapi import HTTPException, Request
+from fastapi import HTTPException, Request, status
 from unittest.mock import MagicMock
 
-from server.main import raise_bad_request, raise_not_found, get_admin_info, get_db
-from server import models, schemas
+from server.main import raise_bad_request, raise_not_found, get_db
 
 
 def test_raise_bad_request():
@@ -16,7 +15,7 @@ def test_raise_bad_request():
     with pytest.raises(HTTPException) as exc_info:
         raise_bad_request(message)
 
-    assert exc_info.value.status_code == 400
+    assert exc_info.value.status_code == status.HTTP_400_BAD_REQUEST
     assert exc_info.value.detail == message
 
 
@@ -32,7 +31,7 @@ def test_raise_bad_request_custom_message():
         with pytest.raises(HTTPException) as exc_info:
             raise_bad_request(message)
 
-        assert exc_info.value.status_code == 400
+        assert exc_info.value.status_code == status.HTTP_400_BAD_REQUEST
         assert exc_info.value.detail == message
 
 
@@ -45,7 +44,7 @@ def test_raise_not_found():
     with pytest.raises(HTTPException) as exc_info:
         raise_not_found(mock_request)
 
-    assert exc_info.value.status_code == 404
+    assert exc_info.value.status_code == status.HTTP_404_NOT_FOUND
     assert "doesn't exist" in exc_info.value.detail
     assert str(mock_request.url) in exc_info.value.detail
 

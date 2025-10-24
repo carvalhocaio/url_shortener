@@ -1,7 +1,7 @@
 """
 Unit tests for DELETE /admin/{secret_key} endpoint
 """
-
+from fastapi import status
 
 def test_delete_url_success(client):
     """Test that DELETE /admin/{secret_key} executes successfully"""
@@ -15,7 +15,7 @@ def test_delete_url_success(client):
     # Delete URL
     response = client.delete(f"/admin/{secret_key}")
 
-    assert response.status_code == 200
+    assert response.status_code == status.HTTP_200_OK
     assert "detail" in response.json()
     assert "Successfully deleted" in response.json()["detail"]
 
@@ -32,7 +32,7 @@ def test_delete_url_returns_success_message(client):
     # Delete URL
     response = client.delete(f"/admin/{secret_key}")
 
-    assert response.status_code == 200
+    assert response.status_code == status.HTTP_200_OK
     detail_message = response.json()["detail"]
     assert target_url in detail_message
     assert "Successfully deleted" in detail_message
@@ -42,7 +42,7 @@ def test_delete_nonexistent_url_returns_404(client):
     """Test that deleting non-existent URL returns 404"""
     response = client.delete("/admin/nonexistent_secret_key_xyz")
 
-    assert response.status_code == 404
+    assert response.status_code == status.HTTP_404_NOT_FOUND
     assert "doesn't exist" in response.json()["detail"]
 
 
@@ -58,15 +58,15 @@ def test_delete_url_makes_it_inaccessible(client):
 
     # Verify URL works before deletion
     redirect_response = client.get(f"/{url_key}", follow_redirects=False)
-    assert redirect_response.status_code == 307
+    assert redirect_response.status_code == status.HTTP_307_TEMPORARY_REDIRECT
 
     # Delete URL
     delete_response = client.delete(f"/admin/{secret_key}")
-    assert delete_response.status_code == 200
+    assert delete_response.status_code == status.HTTP_200_OK
 
     # Verify URL no longer works
     response = client.get(f"/{url_key}")
-    assert response.status_code == 404
+    assert response.status_code == status.HTTP_404_NOT_FOUND
 
 
 def test_delete_url_makes_admin_inaccessible(client):
@@ -80,15 +80,15 @@ def test_delete_url_makes_admin_inaccessible(client):
 
     # Verify admin works before deletion
     admin_response = client.get(f"/admin/{secret_key}")
-    assert admin_response.status_code == 200
+    assert admin_response.status_code == status.HTTP_200_OK
 
     # Delete URL
     delete_response = client.delete(f"/admin/{secret_key}")
-    assert delete_response.status_code == 200
+    assert delete_response.status_code == status.HTTP_200_OK
 
     # Verify admin no longer works
     response = client.get(f"/admin/{secret_key}")
-    assert response.status_code == 404
+    assert response.status_code == status.HTTP_404_NOT_FOUND
 
 
 def test_delete_already_deleted_url_returns_404(client):
@@ -102,11 +102,11 @@ def test_delete_already_deleted_url_returns_404(client):
 
     # Delete URL first time
     first_delete = client.delete(f"/admin/{secret_key}")
-    assert first_delete.status_code == 200
+    assert first_delete.status_code == status.HTTP_200_OK
 
     # Try to delete again
     second_delete = client.delete(f"/admin/{secret_key}")
-    assert second_delete.status_code == 404
+    assert second_delete.status_code == status.HTTP_404_NOT_FOUND
 
 
 def test_delete_preserves_click_history(client):
@@ -129,4 +129,4 @@ def test_delete_preserves_click_history(client):
 
     # Delete URL should succeed
     delete_response = client.delete(f"/admin/{secret_key}")
-    assert delete_response.status_code == 200
+    assert delete_response.status_code == status.HTTP_200_OK

@@ -1,7 +1,7 @@
 """
 Unit tests for GET /{url_key} endpoint
 """
-
+from fastapi import status
 
 def test_redirect_to_target_url(client):
     """Test that accessing shortened URL redirects to target URL"""
@@ -9,7 +9,7 @@ def test_redirect_to_target_url(client):
 
     # Create shortened URL
     create_response = client.post("/url", json={"target_url": target_url})
-    assert create_response.status_code == 200
+    assert create_response.status_code == status.HTTP_200_OK
 
     data = create_response.json()
     url_key = data["url"].split("/")[-1]
@@ -17,7 +17,7 @@ def test_redirect_to_target_url(client):
     # Access shortened URL (don't follow redirects to check status code)
     redirect_response = client.get(f"/{url_key}", follow_redirects=False)
 
-    assert redirect_response.status_code == 307  # Temporary redirect
+    assert redirect_response.status_code == status.HTTP_307_TEMPORARY_REDIRECT
     assert redirect_response.headers["location"] == target_url
 
 
@@ -46,7 +46,7 @@ def test_redirect_with_nonexistent_key_returns_404(client):
     """Test that accessing non-existent URL key returns 404"""
     response = client.get("/nonexistent-key-12345")
 
-    assert response.status_code == 404
+    assert response.status_code == status.HTTP_404_NOT_FOUND
     assert "doesn't exist" in response.json()["detail"]
 
 
@@ -63,7 +63,7 @@ def test_redirect_multiple_times_increments_correctly(client):
     # Access multiple times
     for i in range(5):
         redirect_response = client.get(f"/{url_key}", follow_redirects=False)
-        assert redirect_response.status_code == 307
+        assert redirect_response.status_code == status.HTTP_307_TEMPORARY_REDIRECT
 
     # Verify clicks
     admin_response = client.get(f"/admin/{secret_key}")
@@ -82,8 +82,8 @@ def test_inactive_url_returns_404(client):
 
     # Delete URL
     delete_response = client.delete(f"/admin/{secret_key}")
-    assert delete_response.status_code == 200
+    assert delete_response.status_code == status.HTTP_200_OK
 
     # Try to access deleted URL
     response = client.get(f"/{url_key}")
-    assert response.status_code == 404
+    assert response.status_code == status.HTTP_404_NOT_FOUND
