@@ -1,5 +1,5 @@
 import validators
-from fastapi import Depends, FastAPI, HTTPException, Request
+from fastapi import Depends, FastAPI, HTTPException, Request, status
 from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 from starlette.datastructures import URL
@@ -21,18 +21,21 @@ def get_db():
 
 
 def raise_bad_request(message):
-    raise HTTPException(status_code=400, detail=message)
+    raise HTTPException(
+        status_code=status.HTTP_400_BAD_REQUEST, detail=message
+    )
 
 
 def raise_not_found(request):
     message = f"URL '{request.url}' doesn't exist"
-    raise HTTPException(status_code=404, detail=message)
+    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=message)
 
 
 def get_admin_info(db_url: models.URL) -> schemas.URLInfo:
     base_url = URL(get_settings().base_url)
     admin_endpoint = app.url_path_for(
-        "administration info", secret_key=db_url.secret_key
+        "administration info",
+        secret_key=db_url.secret_key,
     )
     db_url.url = str(base_url.replace(path=db_url.key))
     db_url.admin_url = str(base_url.replace(path=admin_endpoint))
