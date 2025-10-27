@@ -41,7 +41,10 @@ class URLBase(BaseModel):
 		return v
 
 
-class URL(URLBase):
+class URL(BaseModel):
+	"""URL response schema (without custom_key, as it becomes the key)"""
+
+	target_url: str
 	is_active: bool
 	clicks: int
 
