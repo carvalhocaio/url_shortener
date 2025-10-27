@@ -86,4 +86,4 @@ jobs:
 
       - name: Validate application starts
         run: |
-          timeout 10s uv run fastapi run main.py || code=$?; if [[ $code -ne 124 && $code -ne 0 ]]; then exit $code; fi
+          timeout 10s uv run uvicorn app.main:app || code=$?; if [[ $code -ne 124 && $code -ne 0 ]]; then exit $code; fi
