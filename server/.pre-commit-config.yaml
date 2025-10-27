@@ -31,6 +31,8 @@ repos:
       - id: ruff
         name: Ruff linter
         args: [--fix]
+        exclude: ^alembic/
       # Run the formatter
       - id: ruff-format
         name: Ruff formatter
+        exclude: ^alembic/

@@ -10,6 +10,26 @@ dev:
 build:
 	uvicorn app.main:app --host 0.0.0.0 --port 8000
 
+# Database migration commands
+migrate:
+	alembic upgrade head
+
+migrate-create:
+	@if [ -z "$(MSG)" ]; then \
+		echo "Error: MSG is required. Usage: make migrate-create MSG=\"description\""; \
+		exit 1; \
+	fi
+	alembic revision --autogenerate -m "$(MSG)"
+
+db-downgrade:
+	alembic downgrade -1
+
+db-current:
+	alembic current
+
+db-history:
+	alembic history --verbose
+
 # Docker commands for test database
 docker-up-test-db:
 	docker compose -f docker-compose.test.yml up -d

@@ -1,12 +1,10 @@
 from fastapi import FastAPI
 
 from app.api.routes import admin, urls
-from app.core.database import Base, engine
-
-# Create database tables
-Base.metadata.create_all(bind=engine)
 
 # Initialize FastAPI application
+# Note: Database migrations are now managed by Alembic
+# Run 'make migrate' to apply pending migrations
 app = FastAPI()
 
 # Include routers
