@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
 
-from . import keygen, models, schemas
+from app import models, schemas
+from app.utils import keygen
 
 
 def create_db_url(db: Session, url: schemas.URLBase) -> models.URL:

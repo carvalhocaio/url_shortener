@@ -11,10 +11,8 @@ from sqlalchemy.orm import sessionmaker
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 # Import after path is set
-from server import models
-from server.main import app, get_db
-
-Base = models.Base
+from app.core.database import Base
+from app.main import app, get_db
 
 # Set test database URL
 TEST_DB_URL = os.getenv(

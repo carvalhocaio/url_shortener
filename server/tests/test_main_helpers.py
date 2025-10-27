@@ -7,7 +7,7 @@ from unittest.mock import MagicMock
 import pytest
 from fastapi import HTTPException, Request, status
 
-from server.main import get_db, raise_bad_request, raise_not_found
+from app.main import get_db, raise_bad_request, raise_not_found
 
 
 def test_raise_bad_request():
@@ -108,7 +108,7 @@ def test_get_admin_info_preserves_target_url(client):
 
 def test_get_db_yields_session(db_session):
 	"""Test that get_db yields a database session"""
-	from server.database import SessionLocal
+	from app.core.database import SessionLocal
 
 	# get_db is a generator function
 	db_generator = get_db()
@@ -131,7 +131,7 @@ def test_get_db_closes_session():
 	from unittest.mock import MagicMock, patch
 
 	# Mock SessionLocal to track if close() is called
-	with patch("server.main.SessionLocal") as mock_session_class:
+	with patch("app.main.SessionLocal") as mock_session_class:
 		mock_session = MagicMock()
 		mock_session_class.return_value = mock_session
 
@@ -153,7 +153,7 @@ def test_get_db_closes_session_on_exception():
 	"""Test that get_db closes session even when exception occurs"""
 	from unittest.mock import MagicMock, patch
 
-	with patch("server.main.SessionLocal") as mock_session_class:
+	with patch("app.main.SessionLocal") as mock_session_class:
 		mock_session = MagicMock()
 		mock_session_class.return_value = mock_session
 
@@ -172,13 +172,21 @@ def test_get_db_closes_session_on_exception():
 
 def test_main_module_creates_tables():
 	"""Test that main module creates database tables on import"""
-	from server import models
+	# Import main module
+	from app import main
 
-	# Verify that Base has metadata
-	assert hasattr(models.Base, "metadata")
+	# Verify that app is a FastAPI instance
+	assert hasattr(main, "app")
 
-	# Verify that tables exist in metadata
-	assert len(models.Base.metadata.tables) > 0
+	# Verify models module exists and has URL model
+	from app import models
 
-	# The URL table should exist
-	assert "urls" in models.Base.metadata.tables
+	assert hasattr(models, "URL")
+
+	# Verify URL model has required columns
+	assert hasattr(models.URL, "id")
+	assert hasattr(models.URL, "key")
+	assert hasattr(models.URL, "secret_key")
+	assert hasattr(models.URL, "target_url")
+	assert hasattr(models.URL, "is_active")
+	assert hasattr(models.URL, "clicks")

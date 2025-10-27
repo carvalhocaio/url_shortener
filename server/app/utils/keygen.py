@@ -3,7 +3,7 @@ import string
 
 from sqlalchemy.orm import Session
 
-from . import crud
+from app.api import crud
 
 
 def create_random_key(length: int = 5) -> str:

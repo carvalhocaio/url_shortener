@@ -15,14 +15,14 @@ def test_sqlite_database_uses_check_same_thread():
 		os.environ["DB_URL"] = "sqlite:///./test_check_thread.db"
 
 		# Clear the lru_cache to force settings reload
-		from server.config import get_settings
+		from app.core.config import get_settings
 
 		get_settings.cache_clear()
 
 		# Re-import database module to apply new settings
 		import importlib
 
-		from server import database
+		from app.core import database
 
 		importlib.reload(database)
 
@@ -53,14 +53,14 @@ def test_postgresql_database_has_empty_connect_args():
 		os.environ["DB_URL"] = "postgresql://user:pass@localhost:5432/testdb"
 
 		# Clear the lru_cache to force settings reload
-		from server.config import get_settings
+		from app.core.config import get_settings
 
 		get_settings.cache_clear()
 
 		# Re-import database module to apply new settings
 		import importlib
 
-		from server import database
+		from app.core import database
 
 		importlib.reload(database)
 
@@ -82,7 +82,7 @@ def test_postgresql_database_has_empty_connect_args():
 
 def test_database_engine_created_successfully():
 	"""Test that database engine is created successfully"""
-	from server.database import engine
+	from app.core.database import engine
 
 	assert engine is not None
 	assert hasattr(engine, "connect")
@@ -90,7 +90,7 @@ def test_database_engine_created_successfully():
 
 def test_session_local_created_successfully():
 	"""Test that SessionLocal is created successfully"""
-	from server.database import SessionLocal
+	from app.core.database import SessionLocal
 
 	assert SessionLocal is not None
 
@@ -102,7 +102,7 @@ def test_session_local_created_successfully():
 
 def test_base_declarative_created_successfully():
 	"""Test that Base declarative is created successfully"""
-	from server.database import Base
+	from app.core.database import Base
 
 	assert Base is not None
 	assert hasattr(Base, "metadata")

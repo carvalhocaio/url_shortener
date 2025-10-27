@@ -5,7 +5,7 @@ Unit tests for keygen.py module
 import string
 from unittest.mock import patch
 
-from server import keygen
+from app.utils import keygen
 
 
 def test_create_random_key_default_length():
@@ -44,12 +44,18 @@ def test_create_random_key_only_uppercase_and_digits():
 def test_create_unique_random_key_returns_unique_key(client, db_session):
 	"""Test that create_unique_random_key returns a key not in database"""
 	# Create some URLs in database
-	from server import crud
-	from server.schemas import URLBase
+	from app import schemas
+	from app.api import crud
 
-	crud.create_db_url(db_session, URLBase(target_url="https://example.com/1"))
-	crud.create_db_url(db_session, URLBase(target_url="https://example.com/2"))
-	crud.create_db_url(db_session, URLBase(target_url="https://example.com/3"))
+	crud.create_db_url(
+		db_session, schemas.URLBase(target_url="https://example.com/1")
+	)
+	crud.create_db_url(
+		db_session, schemas.URLBase(target_url="https://example.com/2")
+	)
+	crud.create_db_url(
+		db_session, schemas.URLBase(target_url="https://example.com/3")
+	)
 
 	# Generate unique key
 	unique_key = keygen.create_unique_random_key(db_session)
@@ -61,17 +67,17 @@ def test_create_unique_random_key_returns_unique_key(client, db_session):
 
 def test_create_unique_random_key_handles_collision(db_session):
 	"""Test that create_unique_random_key handles key collision by retrying"""
-	from server import crud
-	from server.schemas import URLBase
+	from app import schemas
+	from app.api import crud
 
 	# Create a URL with a specific key
 	existing_url = crud.create_db_url(
-		db_session, URLBase(target_url="https://example.com/collision")
+		db_session, schemas.URLBase(target_url="https://example.com/collision")
 	)
 	existing_key = existing_url.key
 
 	# Mock create_random_key to return existing key first, then new key
-	with patch("server.keygen.create_random_key") as mock_create:
+	with patch("app.utils.keygen.create_random_key") as mock_create:
 		# First: existing key (collision), second: new key
 		mock_create.side_effect = [existing_key, "NEWKEY123"]
 
@@ -85,21 +91,21 @@ def test_create_unique_random_key_handles_collision(db_session):
 
 def test_create_unique_random_key_multiple_collisions(db_session):
 	"""Test that create_unique_random_key handles multiple collisions"""
-	from server import crud
-	from server.schemas import URLBase
+	from app import schemas
+	from app.api import crud
 
 	# Create URLs with specific keys
 	url1 = crud.create_db_url(
-		db_session, URLBase(target_url="https://example.com/1")
+		db_session, schemas.URLBase(target_url="https://example.com/1")
 	)
 	url2 = crud.create_db_url(
-		db_session, URLBase(target_url="https://example.com/2")
+		db_session, schemas.URLBase(target_url="https://example.com/2")
 	)
 	key1 = url1.key
 	key2 = url2.key
 
 	# Mock create_random_key to return existing keys multiple times
-	with patch("server.keygen.create_random_key") as mock_create:
+	with patch("app.utils.keygen.create_random_key") as mock_create:
 		# First two calls return existing keys, third returns new key
 		mock_create.side_effect = [key1, key2, "UNIQUE999"]
 
@@ -128,12 +134,12 @@ def test_create_random_key_large_length():
 
 def test_is_key_available_with_available_key(db_session):
 	"""Test is_key_available returns True for available key"""
-	from server import crud
-	from server.schemas import URLBase
+	from app import schemas
+	from app.api import crud
 
 	# Create a URL
 	crud.create_db_url(
-		db_session, URLBase(target_url="https://example.com/test")
+		db_session, schemas.URLBase(target_url="https://example.com/test")
 	)
 
 	# Check that a different key is available
@@ -142,13 +148,15 @@ def test_is_key_available_with_available_key(db_session):
 
 def test_is_key_available_with_taken_key(db_session):
 	"""Test is_key_available returns False for taken key"""
-	from server import crud
-	from server.schemas import URLBase
+	from app import schemas
+	from app.api import crud
 
 	# Create a URL with custom key
 	crud.create_db_url(
 		db_session,
-		URLBase(target_url="https://example.com/test", custom_key="taken-key"),
+		schemas.URLBase(
+			target_url="https://example.com/test", custom_key="taken-key"
+		),
 	)
 
 	# Check that the same key is not available
@@ -157,13 +165,13 @@ def test_is_key_available_with_taken_key(db_session):
 
 def test_is_key_available_after_soft_deletion(db_session):
 	"""Test is_key_available returns False after URL is soft deleted"""
-	from server import crud
-	from server.schemas import URLBase
+	from app import schemas
+	from app.api import crud
 
 	# Create a URL with custom key
 	created_url = crud.create_db_url(
 		db_session,
-		URLBase(
+		schemas.URLBase(
 			target_url="https://example.com/test", custom_key="deleted-key"
 		),
 	)
@@ -178,13 +186,13 @@ def test_is_key_available_after_soft_deletion(db_session):
 
 def test_key_exists_in_db_with_active_url(db_session):
 	"""Test key_exists_in_db returns True for active URL key"""
-	from server import crud
-	from server.schemas import URLBase
+	from app import schemas
+	from app.api import crud
 
 	# Create a URL with custom key
 	crud.create_db_url(
 		db_session,
-		URLBase(
+		schemas.URLBase(
 			target_url="https://example.com/test", custom_key="active-key"
 		),
 	)
@@ -195,13 +203,13 @@ def test_key_exists_in_db_with_active_url(db_session):
 
 def test_key_exists_in_db_with_inactive_url(db_session):
 	"""Test key_exists_in_db returns True for inactive URL key"""
-	from server import crud
-	from server.schemas import URLBase
+	from app import schemas
+	from app.api import crud
 
 	# Create and then delete a URL
 	created_url = crud.create_db_url(
 		db_session,
-		URLBase(
+		schemas.URLBase(
 			target_url="https://example.com/test", custom_key="inactive-key"
 		),
 	)
@@ -213,7 +221,7 @@ def test_key_exists_in_db_with_inactive_url(db_session):
 
 def test_key_exists_in_db_with_nonexistent_key(db_session):
 	"""Test key_exists_in_db returns False for non-existent key"""
-	from server import crud
+	from app.api import crud
 
 	# Check that a random key doesn't exist
 	assert crud.key_exists_in_db(db_session, "nonexistent-key") is False
