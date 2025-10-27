@@ -5,13 +5,10 @@ format:
 	ruff check . --fix && ruff format .
 
 dev:
-	fastapi dev main.py
-
-run:
-	fastapi dev main.py
+	uvicorn app.main:app --reload
 
 build:
-	uv run fastapi run main.py
+	uvicorn app.main:app --host 0.0.0.0 --port 8000
 
 # Docker commands for test database
 docker-up-test-db:
