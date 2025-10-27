@@ -1,5 +1,5 @@
 """
-Unit tests for helper functions in main.py
+Unit tests for helper functions (deps.py)
 """
 
 from unittest.mock import MagicMock
@@ -7,7 +7,7 @@ from unittest.mock import MagicMock
 import pytest
 from fastapi import HTTPException, Request, status
 
-from app.main import get_db, raise_bad_request, raise_not_found
+from app.api.deps import get_db, raise_bad_request, raise_not_found
 
 
 def test_raise_bad_request():
@@ -131,7 +131,7 @@ def test_get_db_closes_session():
 	from unittest.mock import MagicMock, patch
 
 	# Mock SessionLocal to track if close() is called
-	with patch("app.main.SessionLocal") as mock_session_class:
+	with patch("app.api.deps.SessionLocal") as mock_session_class:
 		mock_session = MagicMock()
 		mock_session_class.return_value = mock_session
 
@@ -153,7 +153,7 @@ def test_get_db_closes_session_on_exception():
 	"""Test that get_db closes session even when exception occurs"""
 	from unittest.mock import MagicMock, patch
 
-	with patch("app.main.SessionLocal") as mock_session_class:
+	with patch("app.api.deps.SessionLocal") as mock_session_class:
 		mock_session = MagicMock()
 		mock_session_class.return_value = mock_session
 

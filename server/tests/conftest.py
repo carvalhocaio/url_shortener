@@ -11,8 +11,9 @@ from sqlalchemy.orm import sessionmaker
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 # Import after path is set
+from app.api.deps import get_db
 from app.core.database import Base
-from app.main import app, get_db
+from app.main import app
 
 # Set test database URL
 TEST_DB_URL = os.getenv(
