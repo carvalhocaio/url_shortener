@@ -1,6 +1,13 @@
-from sqlalchemy import Boolean, Column, Integer, String
+from datetime import UTC, datetime
+
+from sqlalchemy import Boolean, Column, DateTime, Integer, String
 
 from app.core.database import Base
+
+
+def utc_now():
+	"""Return current UTC time as timezone-aware datetime."""
+	return datetime.now(UTC)
 
 
 class URL(Base):
@@ -12,3 +19,4 @@ class URL(Base):
 	target_url = Column(String, index=True)
 	is_active = Column(Boolean, default=True)
 	clicks = Column(Integer, default=0)
+	created_at = Column(DateTime, default=utc_now, nullable=False)

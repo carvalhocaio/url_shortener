@@ -39,6 +39,20 @@ def get_db_url_by_key(db: Session, url_key: str) -> models.URL:
 	)
 
 
+def get_db_url_for_peek(db: Session, url_key: str) -> models.URL:
+	"""
+	Get URL by key for peek operation (returns even if inactive).
+
+	Args:
+		db: Database session
+		url_key: URL key
+
+	Returns:
+		URL model if exists, None otherwise
+	"""
+	return db.query(models.URL).filter(models.URL.key == url_key).first()
+
+
 def key_exists_in_db(db: Session, key: str) -> bool:
 	"""
 	Check if a key exists in the database (regardless of is_active status).

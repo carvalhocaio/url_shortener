@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Optional
 
 from pydantic import BaseModel, Field, field_validator
@@ -50,3 +51,15 @@ class URL(URLBase):
 class URLInfo(URL):
 	url: str
 	admin_url: str
+
+
+class URLPeek(BaseModel):
+	"""Schema for peeking at a shortened URL without redirecting"""
+
+	key: str
+	target_url: str
+	is_active: bool
+	clicks: int
+	created_at: datetime
+
+	model_config = {"from_attributes": True}

@@ -59,6 +59,35 @@ def create_url(
 	return get_admin_info(db_url, request.app)
 
 
+@router.get("/peek/{url_key}", response_model=schemas.URLPeek)
+def peek_url(
+	url_key: str,
+	request: Request,
+	db: Session = Depends(get_db),
+):
+	"""
+	Peek at a shortened URL without redirecting or incrementing clicks.
+
+	This endpoint allows users to check the target URL behind a shortened URL
+	without actually visiting it. Useful for security and preview purposes.
+
+	Args:
+		url_key: Short URL key
+		request: FastAPI request object
+		db: Database session
+
+	Returns:
+		URLPeek with key, target_url, is_active, clicks, and created_at
+
+	Raises:
+		404: URL key not found
+	"""
+	if db_url := crud.get_db_url_for_peek(db=db, url_key=url_key):
+		return db_url
+	else:
+		raise_not_found(request)
+
+
 @router.get("/{url_key}")
 def forward_to_target_url(
 	url_key: str,
